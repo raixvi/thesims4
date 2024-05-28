@@ -1,0 +1,245 @@
+package com.mycompany.forstudy;
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.sql.*;
+
+public class Forstudy implements ActionListener {
+
+    JFrame frame;
+    JPanel pnl_north, pnl_center, pnl_cust_name, pnl_cust_nric, pnl_cust_add, pnl_cust_num;
+    JLabel lbl_title, lbl_cust_name, lbl_cust_nric, lbl_cust_add, lbl_cust_num;
+    JTextField txt_cust_name, txt_cust_nric, txt_cust_num, txt_pet_name;
+    JTextArea txta_cust_add;
+    JSeparator line_1;
+    JPanel pnl_line, pnl_pet_name, pnl_pet_sex, pnl_pet_type;
+    JLabel lbl_pet_name, lbl_pet_sex, lbl_pet_type;
+    ButtonGroup bg_1;
+    JRadioButton rb_male, rb_female;
+    JComboBox<String> cb_type;
+    JPanel pnl_south, pnl_button;
+    JButton btn_insert, btn_retrieve, btn_display, btn_clear;
+
+    String cust_name, cust_nric, cust_address, cust_num_phone, pet_name, pet_sex, pet_type;
+    Connection conn;
+    String db_url = "jdbc:mysql://localhost/studyonly";
+    String db_username = "root";
+    String db_password = "";
+
+    PreparedStatement stmt;
+
+    Forstudy() {
+
+        frame = new JFrame("Kuching Street Club");
+
+        //PANEL NORTH --------------------------------------
+        lbl_title = new JLabel("Kuching Street Cat Club");
+        pnl_north = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        pnl_north.add(lbl_title);
+
+        //PANEL CENTER ------------------------------------------------
+        pnl_center = new JPanel();
+        pnl_center.setLayout(new BoxLayout(pnl_center, BoxLayout.Y_AXIS));
+
+        //PANEL CUSTOMER NAME
+        pnl_cust_name = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        lbl_cust_name = new JLabel("Customer Name: ");
+        lbl_cust_name.setPreferredSize(new Dimension(150, 15));
+        txt_cust_name = new JTextField(15);
+        pnl_cust_name.add(lbl_cust_name);
+        pnl_cust_name.add(txt_cust_name);
+
+        //PANEL CUSTOMER NRIC
+        pnl_cust_nric = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        lbl_cust_nric = new JLabel("Customer NRIC: ");
+        lbl_cust_nric.setPreferredSize(new Dimension(150, 15));
+        txt_cust_nric = new JTextField(15);
+        pnl_cust_nric.add(lbl_cust_nric);
+        pnl_cust_nric.add(txt_cust_nric);
+
+        //PANEL CUSTOMER ADDRESS
+        pnl_cust_add = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        lbl_cust_add = new JLabel("Customer Address: ");
+        lbl_cust_add.setPreferredSize(new Dimension(150, 15));
+        txta_cust_add = new JTextArea();
+        txta_cust_add.setPreferredSize(new Dimension(200, 100));
+        pnl_cust_add.add(lbl_cust_add);
+        pnl_cust_add.add(txta_cust_add);
+
+        //PANEL CUSTOMER CONTACT NO.
+        pnl_cust_num = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        lbl_cust_num = new JLabel("Customer Contact No: ");
+        lbl_cust_num.setPreferredSize(new Dimension(150, 15));
+        txt_cust_num = new JTextField(15);
+        pnl_cust_num.add(lbl_cust_num);
+        pnl_cust_num.add(txt_cust_num);
+
+        //PANEL PET NAME pnl_pet_name
+        pnl_pet_name = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        lbl_pet_name = new JLabel("Pet Name: ");
+        lbl_pet_name.setPreferredSize(new Dimension(150, 15));
+        txt_pet_name = new JTextField(15);
+        pnl_pet_name.add(lbl_pet_name);
+        pnl_pet_name.add(txt_pet_name);
+
+        //PANEL PET SEX 
+        pnl_pet_sex = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        lbl_pet_sex = new JLabel("Pet Sex: ");
+        lbl_pet_sex.setPreferredSize(new Dimension(150, 15));
+        bg_1 = new ButtonGroup();
+        rb_male = new JRadioButton("Male");
+        rb_female = new JRadioButton("Female");
+        bg_1.add(rb_male);
+        bg_1.add(rb_female);
+        pnl_pet_sex.add(lbl_pet_sex);
+        pnl_pet_sex.add(rb_male);
+        pnl_pet_sex.add(rb_female);
+
+        //PANEL PET TYPE
+        pnl_pet_type = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        lbl_pet_type = new JLabel("Pet Type: ");
+        lbl_pet_type.setPreferredSize(new Dimension(150, 15));
+        String[] petType = {"Cat", "Dog", "Lembu"};
+        cb_type = new JComboBox<String>(petType);
+        pnl_pet_type.add(lbl_pet_type);
+        pnl_pet_type.add(cb_type);
+
+        pnl_center.add(pnl_cust_name);
+        pnl_center.add(pnl_cust_nric);
+        pnl_center.add(pnl_cust_add);
+        pnl_center.add(pnl_cust_num);
+        pnl_center.add(pnl_pet_name);
+        pnl_center.add(pnl_pet_sex);
+        pnl_center.add(pnl_pet_type);
+
+        //PANEL SOUTH
+        //JPanel pnl_south;JButton btn_insert, btn_retrieve, btn_display, btn_clear;
+        pnl_south = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        pnl_button = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+        btn_insert = new JButton("Insert");
+        btn_retrieve = new JButton("Retrieve");
+        btn_display = new JButton("Display Data");
+        btn_clear = new JButton("Clear");
+
+        pnl_button.add(btn_insert);
+        btn_insert.addActionListener(this);
+
+        pnl_button.add(btn_retrieve);
+        btn_retrieve.addActionListener(this);
+
+        pnl_button.add(btn_display);
+
+        pnl_button.add(btn_clear);
+        btn_clear.addActionListener(this);
+
+        pnl_south.add(pnl_button);
+
+        frame.add(pnl_north, BorderLayout.NORTH);
+        frame.add(pnl_center, BorderLayout.CENTER);
+        frame.add(pnl_south, BorderLayout.SOUTH);
+
+        frame.pack();
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+    }
+
+    public static void main(String[] args) {
+        Forstudy app = new Forstudy();
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == btn_insert) {
+            insert_data();
+        }
+
+        if (e.getSource() == btn_clear) {
+            txt_cust_name.setText("");
+            txt_cust_nric.setText("");
+            txta_cust_add.setText("");
+            txt_cust_num.setText("");
+            txt_pet_name.setText("");
+            cb_type.setSelectedItem(null);
+        }
+        
+        if (e.getSource() == btn_insert) {
+            update_data();
+        }
+    }
+
+    public void insert_data(){
+        if(get_data()){
+            try{
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                conn = DriverManager.getConnection(db_url, db_username, db_password);
+                
+                String sql = "INSERT INTO registration(name,nric,address,num_phone,pet_name,pet_sex,pet_type) VALUES (?,?,?,?,?,?,?)";
+                stmt = conn.prepareStatement(sql);
+                stmt.setString(1, cust_name);
+                stmt.setString(2, cust_nric);
+                stmt.setString(3, cust_address);
+                stmt.setString(4, cust_num_phone);
+                stmt.setString(5, pet_name);
+                stmt.setString(6, pet_sex);
+                stmt.setString(7, pet_type);
+
+                int status = stmt.executeUpdate();
+                
+                if(status > 0){
+                    JOptionPane.showMessageDialog(frame, "Pet added successfully!");
+                }else{
+                    JOptionPane.showMessageDialog(null, "Operation failed");
+                }
+                
+            }catch(Exception ex){
+                JOptionPane.showMessageDialog(null, "Error: " + ex);
+        }
+        }else{
+            JOptionPane.showMessageDialog(null, "Please fill the form!");
+        }
+    }
+    
+    public boolean get_data(){
+        cust_name = txt_cust_name.getText();
+        cust_nric = txt_cust_nric.getText();
+        cust_address = txta_cust_add.getText();
+        cust_num_phone = txt_cust_num.getText();
+        pet_name = txt_pet_name.getText();
+        pet_sex = rb_male.isSelected() ? "Male" : rb_female.isSelected() ? "Female" : "";
+        pet_type = (String) cb_type.getSelectedItem();
+
+        return !cust_name.isEmpty() && !cust_nric.isEmpty() && !cust_address.isEmpty() && !cust_num_phone.isEmpty()
+                && !pet_name.isEmpty() && !pet_sex.isEmpty() && !pet_type.isEmpty();
+    }
+    
+    public void update_data(){
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection(db_url, db_username, db_password);
+            
+            String sql =  "UPDATE registration SET name=?, nric=?, address =? ,num_phone=? ,pet_name=?,pet_sex=?,pet_type=? WHERE ID=?";
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, txt_cust_name.getText());
+            stmt.setString(2, txt_cust_nric.getText());
+            stmt.setString(3, txta_cust_add.getText());
+            stmt.setString(4, txt_cust_num.getText());
+            stmt.setString(5, txt_pet_name.getText());
+            stmt.setString(6, pet_sex);
+            stmt.setString(7, cb_type.getSelectedItem().toString());
+            
+            int status = stmt.executeUpdate();
+            
+            if(status > 0){
+                JOptionPane.showMessageDialog(frame, "Update Successful!!");
+            }else{
+                JOptionPane.showMessageDialog(frame, "Update Unsuccessful!!");
+            }
+
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(frame, "Error: " + ex.getMessage());
+        }
+}
+}
